@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:testapp/models/user_profile.dart';
+import 'package:testapp/pages/chat_page.dart';
 import 'package:testapp/services/auth_service.dart';
 import 'package:testapp/services/databse_service.dart';
 import 'package:testapp/services/navigation_service.dart';
@@ -84,19 +85,28 @@ class _HomepageState extends State<Homepage> {
             return ListView.builder(
                 itemCount: listOfUsers.length,
                 itemBuilder: (context, index) {
-                  UserProfile users = listOfUsers[index].data();
+                  UserProfile user = listOfUsers[index].data();
                   return Padding(
                     padding: const EdgeInsets.symmetric(vertical: 10.0),
                     child: ChatTile(
-                        userProfile: users,
+                        userProfile: user,
                         onTap: () async {
                           final chatExists =
                               await _databaseService.checkChatExists(
-                                  _authService.user!.uid, users.uid!);
+                                  _authService.user!.uid, user.uid!);
                           if (!chatExists) {
                             await _databaseService.createNewChat(
-                                _authService.user!.uid, users.uid!);
+                                _authService.user!.uid, user.uid!);
                           }
+
+                          _navigationService.push(
+                            MaterialPageRoute(
+                              builder: (context) {
+                                return ChatPage(chatUser: user);
+                              },
+                            ),
+                          );
+
                         }),
                   );
                 });
