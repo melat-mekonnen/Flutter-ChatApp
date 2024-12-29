@@ -5,6 +5,7 @@ import 'package:testapp/services/auth_service.dart';
 import 'package:testapp/services/navigation_service.dart';
 import 'package:testapp/utils.dart';
 
+
 void main() async {
   await setup();
   runApp(MyApp());

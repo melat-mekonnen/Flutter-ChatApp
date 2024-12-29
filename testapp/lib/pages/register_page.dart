@@ -3,8 +3,11 @@ import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:get_it/get_it.dart';
 import 'package:testapp/const.dart';
+import 'package:testapp/models/user_profile.dart';
 import 'package:testapp/pages/media_service.dart';
+import 'package:testapp/services/alert_service.dart';
 import 'package:testapp/services/auth_service.dart';
+import 'package:testapp/services/databse_service.dart';
 import 'package:testapp/services/navigation_service.dart';
 import 'package:testapp/widgets/custom_form_field.dart';
 
@@ -22,6 +25,8 @@ class _RegisterPageState extends State<RegisterPage> {
   late MediaService _mediaService;
   late NavigationService _navigationService;
   late AuthService _authService;
+  late AlertService _alertService;
+  late DatabaseService _databaseService;
 
   String? email, password, name;
   File? selectedImage;
@@ -33,6 +38,8 @@ class _RegisterPageState extends State<RegisterPage> {
     _mediaService = _getIt.get<MediaService>();
     _navigationService = _getIt.get<NavigationService>();
     _authService = _getIt.get<AuthService>();
+    _alertService = _getIt.get<AlertService>();
+    _databaseService = _getIt.get<DatabaseService>();
   }
 
   @override
@@ -131,7 +138,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 hintText: "Password",
                 height: MediaQuery.sizeOf(context).height * 0.1,
                 validationRegEx: PASSWORD_VALIDATION_REGEX,
-                obscureTex: true,
+                obscureTex: false,
                 onSaved: (Value) {
                   setState(
                     () {
@@ -150,11 +157,9 @@ class _RegisterPageState extends State<RegisterPage> {
     return GestureDetector(
       onTap: () async {
         File? file = await _mediaService.getImageFromGallery();
-        if (file != null) {
-          setState(() {
-            selectedImage = file;
-          });
-        }
+        setState(() {
+          selectedImage = file;
+        });
       },
       child: CircleAvatar(
         radius: MediaQuery.of(context).size.width * 0.15,
@@ -169,6 +174,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
       child: MaterialButton(
+        child: Text("Register"),
         color: Theme.of(context).colorScheme.primary,
         onPressed: () async {
           setState(() {
@@ -182,16 +188,36 @@ class _RegisterPageState extends State<RegisterPage> {
                 password!,
               );
               if (result) {
-                print(result);
+                // Register user
+                await _databaseService.createUserProfile(
+                    userProfile:
+                        UserProfile(uid: _authService.user!.uid, name: name));
+
+                //Show confirmation
+                _alertService.showToast(
+                  text: "You have registered sucessfully!",
+                  icon: Icons.check,
+                );
+
+                //Navigate to login page
+                _navigationService.goBack();
+               
+              }else{
+                throw Exception("Unable to register user.");
               }
-              // Register user
+              
             }
-          } catch (e) {}
+          } catch (e) {
+            print(e);
+             _alertService.showToast(
+              text: "Failed to register, Please try again.",
+              icon: Icons.error,
+            );
+          }
           setState(() {
             isLoading = false;
           });
         },
-        child: Text("Register"),
       ),
     );
   }
@@ -212,7 +238,7 @@ class _RegisterPageState extends State<RegisterPage> {
             ),
             GestureDetector(
               onTap: () {
-                _navigationService.goBack();
+                _navigationService.pushReplacementNamed("/login");
               },
               child: const Text(
                 "Login",
