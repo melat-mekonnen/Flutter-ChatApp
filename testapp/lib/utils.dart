@@ -19,6 +19,19 @@ Future<void> registerServices() async {
   getIt.registerSingleton<MediaService>(MediaService());
 
   getIt.registerSingleton<DatabaseService>(DatabaseService());
-  
-
 }
+
+// Function to generate a unique chat ID based on two user IDs
+String generateChatId(String uid1, String uid2) {
+
+  List uids = [uid1, uid2];
+
+  // Sort the user IDs in ascending order to ensure consistent order
+  uids.sort();
+
+  // Create a single chatID usind the 'fold' method iterates through the list and concatenates the user IDs
+  String chatId = uids.fold("", (currentUid, nextUid) => "$currentUid$nextUid");
+
+  return chatId;
+}
+
