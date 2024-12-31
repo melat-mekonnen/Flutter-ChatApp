@@ -30,4 +30,9 @@ class Message {
     data['messageType'] = messageType!.name;
     return data;
   }
+
+    @override
+  String toString() {
+    return 'Message(senderID: $senderID, content: $content, messageType: $messageType, sentAt: $sentAt)';
+  }
 }

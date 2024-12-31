@@ -1,6 +1,7 @@
 import "package:cloud_firestore/cloud_firestore.dart";
 import "package:get_it/get_it.dart";
 import "package:testapp/models/chat.dart";
+import "package:testapp/models/message.dart";
 import "package:testapp/models/user_profile.dart";
 import "package:testapp/services/auth_service.dart";
 import "package:testapp/utils.dart";
@@ -47,7 +48,6 @@ class DatabaseService {
   Future<bool> checkChatExists(String uid1, String uid2) async {
     String chatId = generateChatId(uid1, uid2);
 
-    //Attempt to fetch the chat document from Firestore using the generated chat ID
     final result = await _chatCollection?.doc(chatId).get();
 
     if (result != null) {
@@ -65,9 +65,33 @@ class DatabaseService {
     // Creates a reference to the Firestore document for the given chatId.
     final docRef = _chatCollection!.doc(chatId);
 
-    // Creates a new Chat object with the given chatId, participants (uid1 and uid2), and an empty message list.
     final newChat = Chat(id: chatId, participants: [uid1, uid2], messages: []);
 
     await docRef.set(newChat);
+  }
+
+  //Function to save the message to the database
+
+  Future<void> sendChatmessage(
+      String uid1, String uid2, Message message) async {
+    String chatId = generateChatId(uid1, uid2);
+    final docRef = _chatCollection!.doc(chatId);
+    await docRef.update(
+      {
+        "messages": FieldValue.arrayUnion(
+          [
+            message.toJson(),
+          ],
+        ),
+      },
+    );
+  }
+
+  //Function to get the chat from db
+
+   Stream<DocumentSnapshot<Chat>> getChatData(String uid1, String uid2) {
+    String chatId = generateChatId(uid1, uid2);
+    return _chatCollection?.doc(chatId).snapshots()
+        as Stream<DocumentSnapshot<Chat>>;
   }
 }

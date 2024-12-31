@@ -32,6 +32,7 @@ class MyApp extends StatelessWidget {
     return MaterialApp(
       navigatorKey: _navigationService.navigatorKey,
       title: 'Flutter Demo',
+      debugShowCheckedModeBanner: false,
       theme: ThemeData(
         textTheme: GoogleFonts.montserratTextTheme(),
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),

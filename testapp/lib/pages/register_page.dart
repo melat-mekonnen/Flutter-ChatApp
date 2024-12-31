@@ -174,6 +174,7 @@ class _RegisterPageState extends State<RegisterPage> {
     return SizedBox(
       width: MediaQuery.sizeOf(context).width,
       child: MaterialButton(
+        child: Text("Register"),
         color: Theme.of(context).colorScheme.primary,
         onPressed: () async {
           setState(() {
@@ -200,13 +201,15 @@ class _RegisterPageState extends State<RegisterPage> {
 
                 //Navigate to login page
                 _navigationService.goBack();
-              } else {
+               
+              }else{
                 throw Exception("Unable to register user.");
               }
+              
             }
           } catch (e) {
             print(e);
-            _alertService.showToast(
+             _alertService.showToast(
               text: "Failed to register, Please try again.",
               icon: Icons.error,
             );
@@ -215,7 +218,6 @@ class _RegisterPageState extends State<RegisterPage> {
             isLoading = false;
           });
         },
-        child: Text("Register"),
       ),
     );
   }
